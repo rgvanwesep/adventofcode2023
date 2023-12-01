@@ -1,12 +1,15 @@
 package day1
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 func FindValue(input string) int {
 	if len(input) == 0 {
 		return 0
 	}
-	
+
 	var firstDigit, lastDigit int
 
 	validDigit := regexp.MustCompile(`[1-9]|(one)|(two)|(three)|(four)|(five)|(six)|(seven)|(eight)|(nine)`)
@@ -32,6 +35,18 @@ func FindValue(input string) int {
 		"nine":  9,
 	}
 
+	specialCases := map[string]string{
+		"twone":   "21",
+		"eightwo": "82",
+		"oneight": "18",
+		"threeight": "38",
+		"fiveight": "58",
+		"nineight": "98",
+	}
+
+	for old, new := range specialCases {
+		input = strings.ReplaceAll(input, old, new)
+	}
 	digits := validDigit.FindAllString(input, -1)
 	firstDigit = digitMap[digits[0]]
 	lastDigit = digitMap[digits[len(digits)-1]]

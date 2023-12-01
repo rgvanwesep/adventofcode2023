@@ -44,6 +44,18 @@ func TestFindValue(t *testing.T) {
 		{"7", 77},
 		{"8", 88},
 		{"9", 99},
+		{"twone", 21},
+		{"4twonel", 41},
+		{"jgtwonetwosixthreervlmxlnine869lbqzxpqqn", 29},
+		{"99dndgmkcctwoneftn", 91},
+		{"eightwo", 82},
+		{"248twofbkfpxtheightwovng", 22},
+		{"deightwoeighteight5", 85},
+		{"ninesixpfrjvfm8kkjsrhttxsslhtwoeightwovvg", 92},
+		{"oneight", 18},
+		{"threeight", 38},
+		{"fiveight", 58},
+		{"nineight", 98},
 	}
 	for _, c := range cases {
 		result := FindValue(c.input)
