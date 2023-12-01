@@ -36,12 +36,12 @@ func FindValue(input string) int {
 	}
 
 	specialCases := map[string]string{
-		"twone":   "21",
-		"eightwo": "82",
-		"oneight": "18",
+		"twone":     "21",
+		"eightwo":   "82",
+		"oneight":   "18",
 		"threeight": "38",
-		"fiveight": "58",
-		"nineight": "98",
+		"fiveight":  "58",
+		"nineight":  "98",
 	}
 
 	for old, new := range specialCases {
