@@ -56,6 +56,8 @@ func TestFindValue(t *testing.T) {
 		{"threeight", 38},
 		{"fiveight", 58},
 		{"nineight", 98},
+		{"sevenine", 79},
+		{"eighthree", 83},
 	}
 	for _, c := range cases {
 		result := FindValue(c.input)

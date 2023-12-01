@@ -42,6 +42,8 @@ func FindValue(input string) int {
 		"threeight": "38",
 		"fiveight":  "58",
 		"nineight":  "98",
+		"sevenine":  "79",
+		"eighthree": "83",
 	}
 
 	for old, new := range specialCases {
