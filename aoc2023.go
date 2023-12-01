@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 )
+
 func main() {
 	dayFlag := flag.Int("d", 0, "Day to run")
 
@@ -22,6 +23,7 @@ func main() {
 			break
 		}
 	}
+	log.Printf("Read %d lines\n", len(inputLines))
 
 	writer := bufio.NewWriter(os.Stdout)
 

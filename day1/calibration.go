@@ -1,27 +1,40 @@
 package day1
 
+import "regexp"
+
 func FindValue(input string) int {
-	const (
-		zero = byte('0')
-		nine = byte('9')
-	)
+	if len(input) == 0 {
+		return 0
+	}
+	
 	var firstDigit, lastDigit int
 
-	for i := 0; i < len(input); i++ {
-		char := input[i]
-		if char >= zero && char <= nine {
-			firstDigit = int(char - zero)
-			break
-		}
+	validDigit := regexp.MustCompile(`[1-9]|(one)|(two)|(three)|(four)|(five)|(six)|(seven)|(eight)|(nine)`)
+
+	digitMap := map[string]int{
+		"1":     1,
+		"2":     2,
+		"3":     3,
+		"4":     4,
+		"5":     5,
+		"6":     6,
+		"7":     7,
+		"8":     8,
+		"9":     9,
+		"one":   1,
+		"two":   2,
+		"three": 3,
+		"four":  4,
+		"five":  5,
+		"six":   6,
+		"seven": 7,
+		"eight": 8,
+		"nine":  9,
 	}
 
-	for i := len(input) - 1; i >= 0; i-- {
-		char := input[i]
-		if char >= zero && char <= nine {
-			lastDigit = int(char - zero)
-			break
-		}
-	}
+	digits := validDigit.FindAllString(input, -1)
+	firstDigit = digitMap[digits[0]]
+	lastDigit = digitMap[digits[len(digits)-1]]
 
 	return firstDigit*10 + lastDigit
 }
