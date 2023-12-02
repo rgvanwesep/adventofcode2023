@@ -2,6 +2,23 @@ package day1
 
 import "testing"
 
+func TestReverse(t *testing.T) {
+	cases := []struct {
+		input    string
+		expected string
+	}{
+		{"", ""},
+		{"foobar", "raboof"},
+		{"crash", "hsarc"},
+	}
+	for _, c := range cases {
+		result := Reverse(c.input)
+		if result != c.expected {
+			t.Errorf("Reverse(%q) == %q, expected %q", c.input, result, c.expected)
+		}
+	}
+}
+
 func TestFindValue(t *testing.T) {
 	cases := []struct {
 		input    string
