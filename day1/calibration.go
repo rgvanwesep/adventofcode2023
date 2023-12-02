@@ -2,8 +2,16 @@ package day1
 
 import (
 	"regexp"
-	"strings"
 )
+
+func Reverse(s string) string {
+	runes := []rune(s)
+	n := len(runes)
+	for i, j := 0, n-1; i < n/2; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
+}
 
 func FindValue(input string) int {
 	if len(input) == 0 {
@@ -13,6 +21,7 @@ func FindValue(input string) int {
 	var firstDigit, lastDigit int
 
 	validDigit := regexp.MustCompile(`[1-9]|(one)|(two)|(three)|(four)|(five)|(six)|(seven)|(eight)|(nine)`)
+	validReverseDigit := regexp.MustCompile(`[1-9]|(eno)|(owt)|(eerht)|(ruof)|(evif)|(xis)|(neves)|(thgie)|(enin)`)
 
 	digitMap := map[string]int{
 		"1":     1,
@@ -34,24 +43,8 @@ func FindValue(input string) int {
 		"eight": 8,
 		"nine":  9,
 	}
-
-	specialCases := map[string]string{
-		"twone":     "21",
-		"eightwo":   "82",
-		"oneight":   "18",
-		"threeight": "38",
-		"fiveight":  "58",
-		"nineight":  "98",
-		"sevenine":  "79",
-		"eighthree": "83",
-	}
-
-	for old, new := range specialCases {
-		input = strings.ReplaceAll(input, old, new)
-	}
-	digits := validDigit.FindAllString(input, -1)
-	firstDigit = digitMap[digits[0]]
-	lastDigit = digitMap[digits[len(digits)-1]]
+	firstDigit = digitMap[validDigit.FindString(input)]
+	lastDigit = digitMap[Reverse(validReverseDigit.FindString(Reverse(input)))]
 
 	return firstDigit*10 + lastDigit
 }
