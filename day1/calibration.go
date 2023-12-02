@@ -7,10 +7,10 @@ import (
 )
 
 type Digit struct {
-	Forward string
-	Backward string
+	Forward     string
+	Backward    string
 	StringValue string
-	Value int
+	Value       int
 }
 
 type Digits []Digit
@@ -19,8 +19,8 @@ func (digits Digits) ForwardPattern() string {
 	groups := make([]string, 0)
 	for _, digit := range digits {
 		groups = append(
-			groups, 
-			fmt.Sprintf("(%s)", digit.StringValue), 
+			groups,
+			fmt.Sprintf("(%s)", digit.StringValue),
 			fmt.Sprintf("(%s)", digit.Forward),
 		)
 	}
@@ -31,8 +31,8 @@ func (digits Digits) BackwardPattern() string {
 	groups := make([]string, 0)
 	for _, digit := range digits {
 		groups = append(
-			groups, 
-			fmt.Sprintf("(%s)", digit.StringValue), 
+			groups,
+			fmt.Sprintf("(%s)", digit.StringValue),
 			fmt.Sprintf("(%s)", digit.Backward),
 		)
 	}
