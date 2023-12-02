@@ -15,7 +15,7 @@ func Reverse(s string) string {
 
 func FindValue(input string) int {
 	if len(input) == 0 {
-	return 0
+		return 0
 	}
 
 	var firstDigit, lastDigit int
