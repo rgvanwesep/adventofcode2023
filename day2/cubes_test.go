@@ -25,7 +25,7 @@ func TestNewGame(t *testing.T) {
 		expected Game
 	}{
 		{
-			"Game 1: 4 red, 3 blue; 6 blue, 16 green; 9 blue, 13 green, 1 red; 10 green, 4 red, 6 blue",
+			"Game 1: 4 red, 3 blue; 6 blue, 16 green; 9 blue, 13 green, 1 red; 10 green, 4 red, 6 blue\n",
 			Game{1, []Set{{4, 0, 3}, {0, 16, 6}, {1, 13, 9}, {4, 10, 6}}},
 		},
 		{

@@ -49,6 +49,7 @@ type Game struct {
 }
 
 func NewGame(input string) Game {
+	input = strings.TrimRight(input, "\n")
 	parts := strings.Split(input, ": ")
 
 	gamePair := strings.Split(parts[0], " ")
@@ -81,7 +82,7 @@ func (game Game) LeastUpperBound() Set {
 func Sum(inputs []string) int {
 	sum := 0
 	for _, input := range inputs {
-		if game := NewGame(strings.TrimRight(input, "\n")); game.Check() {
+		if game := NewGame(input); game.Check() {
 			sum += game.Id
 		}
 	}
@@ -91,7 +92,7 @@ func Sum(inputs []string) int {
 func SumPower(inputs []string) int {
 	sum := 0
 	for _, input := range inputs {
-		game := NewGame(strings.TrimRight(input, "\n"))
+		game := NewGame(input)
 		sum += game.LeastUpperBound().Power()
 	}
 	return sum
