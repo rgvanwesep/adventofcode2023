@@ -2,6 +2,7 @@ package main
 
 import (
 	"aoc2023/day1"
+	"aoc2023/day2"
 	"bufio"
 	"flag"
 	"fmt"
@@ -30,8 +31,11 @@ func main() {
 	switch day := *dayFlag; day {
 	case 1:
 		writer.WriteString(fmt.Sprintln(day1.Sum(inputLines)))
-		writer.Flush()
+	case 2:
+		writer.WriteString((fmt.Sprintln(day2.Sum(inputLines))))
 	default:
 		log.Fatal("Invalid day")
 	}
+
+	writer.Flush()
 }
