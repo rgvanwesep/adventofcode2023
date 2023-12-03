@@ -3,6 +3,7 @@ package main
 import (
 	"aoc2023/day1"
 	"aoc2023/day2"
+	"aoc2023/day3"
 	"bufio"
 	"flag"
 	"fmt"
@@ -40,6 +41,10 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day2.Sum(inputLines))))
 	case [2]int{2, 2}:
 		writer.WriteString((fmt.Sprintln(day2.SumPower(inputLines))))
+	case [2]int{3, 1}:
+		writer.WriteString((fmt.Sprintln(day3.Sum(inputLines))))
+	case [2]int{3, 2}:
+		writer.WriteString((fmt.Sprintln(day3.SumGearRatios(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}
