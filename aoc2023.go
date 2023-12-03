@@ -12,8 +12,12 @@ import (
 
 func main() {
 	dayFlag := flag.Int("d", 0, "Day to run")
+	partFlag := flag.Int("p", 1, "Part to run")
 
 	flag.Parse()
+
+	day, part := *dayFlag, *partFlag
+	log.Printf("Running day %d, part %d", day, part)
 
 	reader := bufio.NewReader(os.Stdin)
 	inputLines := make([]string, 0)
@@ -28,13 +32,16 @@ func main() {
 
 	writer := bufio.NewWriter(os.Stdout)
 
-	switch day := *dayFlag; day {
-	case 1:
+	switch [2]int{day, part} {
+	// This case isn't quite right, because only day 1 part 2 is implemented
+	case [2]int{1, 1}:
 		writer.WriteString(fmt.Sprintln(day1.Sum(inputLines)))
-	case 2:
+	case [2]int{2, 1}:
 		writer.WriteString((fmt.Sprintln(day2.Sum(inputLines))))
+	case [2]int{2, 2}:
+		writer.WriteString((fmt.Sprintln(day2.SumPower(inputLines))))
 	default:
-		log.Fatal("Invalid day")
+		log.Fatal("Invalid day or part")
 	}
 
 	writer.Flush()

@@ -31,6 +31,18 @@ func (set Set) Check() bool {
 	return set.Red <= maxRed && set.Green <= maxGreen && set.Blue <= maxBlue
 }
 
+func (set Set) Power() int {
+	return set.Red * set.Green * set.Blue
+}
+
+func (set Set) MergeMax(other Set) Set {
+	return Set{
+		max(set.Red, other.Red),
+		max(set.Green, other.Green),
+		max(set.Blue, other.Blue),
+	}
+}
+
 type Game struct {
 	Id   int
 	Sets []Set
@@ -58,12 +70,29 @@ func (game Game) Check() bool {
 	return true
 }
 
+func (game Game) LeastUpperBound() Set {
+	bound := Set{}
+	for _, set := range game.Sets {
+		bound = bound.MergeMax(set)
+	}
+	return bound
+}
+
 func Sum(inputs []string) int {
 	sum := 0
 	for _, input := range inputs {
 		if game := NewGame(strings.TrimRight(input, "\n")); game.Check() {
 			sum += game.Id
 		}
+	}
+	return sum
+}
+
+func SumPower(inputs []string) int {
+	sum := 0
+	for _, input := range inputs {
+		game := NewGame(strings.TrimRight(input, "\n"))
+		sum += game.LeastUpperBound().Power()
 	}
 	return sum
 }
