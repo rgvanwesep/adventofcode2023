@@ -280,6 +280,56 @@ func TestScore(t *testing.T) {
 	}
 }
 
+func TestNumMatches(t *testing.T) {
+	cases := []struct {
+		card     Card
+		expected int
+	}{
+		{
+			Card{
+				Id:      1,
+				Winners: Set{},
+				Picks:   Set{},
+			},
+			0,
+		},
+		{
+			Card{
+				Id:      1,
+				Winners: Set{1: true, 2: true, 3: true},
+				Picks:   Set{},
+			},
+			0,
+		},
+		{
+			Card{
+				Id:      1,
+				Winners: Set{},
+				Picks:   Set{1: true, 2: true, 3: true},
+			},
+			0,
+		},
+		{
+			Card{
+				Id:      1,
+				Winners: Set{1: true, 2: true, 3: true},
+				Picks:   Set{1: true, 2: true, 3: true},
+			},
+			3,
+		},
+	}
+	for _, c := range cases {
+		actual := c.card.NumMatches()
+		if actual != c.expected {
+			t.Errorf("Expected %v, got %v", c.expected, actual)
+		}
+		actual = c.card.NumMatches()
+		if actual != c.expected {
+			t.Errorf("Expected %v, got %v", c.expected, actual)
+		}
+	}
+}
+
 func TestSum(t *testing.T) {
 	cases := []struct {
 		inputs   []string

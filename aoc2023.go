@@ -10,13 +10,29 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
+	"runtime/pprof"
 )
 
 func main() {
 	dayFlag := flag.Int("d", 0, "Day to run")
 	partFlag := flag.Int("p", 1, "Part to run")
+	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
+	memprofile := flag.String("memprofile", "", "write memory profile to file")
 
 	flag.Parse()
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("Could not create CPU profile: ", err)
+		}
+		defer f.Close()
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("Could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
 
 	day, part := *dayFlag, *partFlag
 	log.Printf("Running day %d, part %d", day, part)
@@ -55,4 +71,16 @@ func main() {
 	}
 
 	writer.Flush()
+
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("Could not create memory profile: ", err)
+		}
+		defer f.Close()
+		runtime.GC()
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("Could not write memory profile: ", err)
+		}
+	}
 }
