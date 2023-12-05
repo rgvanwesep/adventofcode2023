@@ -36,17 +36,35 @@ func (s *Stack) Pop() (int, bool) {
 	return i, true
 }
 
+type OptionalInt []int
+
+func Some(i int) OptionalInt {
+	return OptionalInt{i}
+}
+
+var None = OptionalInt{}
+
+func (o OptionalInt) Get() int {
+	return o[0]
+}
+
+func (o OptionalInt) IsNone() bool {
+	return len(o) == 0
+}
+
 type Card struct {
-	Id      int
-	Winners Set
-	Picks   Set
+	Id         int
+	Winners    Set
+	Picks      Set
+	numMatches OptionalInt
 }
 
 func NewCard(input string) Card {
 	card := Card{
-		Id:      0,
-		Winners: make(Set),
-		Picks:   make(Set),
+		Id:         0,
+		Winners:    make(Set),
+		Picks:      make(Set),
+		numMatches: None,
 	}
 	colonSplit := strings.Split(input, ":")
 	spaceSplit := strings.Split(colonSplit[0], " ")
@@ -69,7 +87,7 @@ func NewCard(input string) Card {
 	return card
 }
 
-func (c Card) Score() int {
+func (c *Card) Score() int {
 	nMatches := c.NumMatches()
 	if nMatches == 0 {
 		return 0
@@ -77,33 +95,37 @@ func (c Card) Score() int {
 	return 1 << (nMatches - 1)
 }
 
-func (c Card) NumMatches() int {
-	return len(c.Winners.Intersect(c.Picks))
+func (c *Card) NumMatches() int {
+	if !c.numMatches.IsNone() {
+		return c.numMatches.Get()
+	}
+	c.numMatches = Some(len(c.Winners.Intersect(c.Picks)))
+	return c.numMatches.Get()
 }
 
 type Cards struct {
-	CardMap map[int]Card
+	CardMap map[int]*Card
 	IdStack Stack
 	Count   int
 }
 
 func NewCards() Cards {
 	return Cards{
-		CardMap: make(map[int]Card),
+		CardMap: make(map[int]*Card),
 		IdStack: Stack{},
 	}
 }
 
 func (c *Cards) Add(card Card) {
-	c.CardMap[card.Id] = card
+	c.CardMap[card.Id] = &card
 	c.IdStack.Push(card.Id)
 	c.Count++
 }
 
-func (c *Cards) Pop() (Card, bool) {
+func (c *Cards) Pop() (*Card, bool) {
 	id, ok := c.IdStack.Pop()
 	if !ok {
-		return Card{}, false
+		return nil, false
 	}
 	card := c.CardMap[id]
 	for i := 0; i < card.NumMatches(); i++ {
@@ -113,23 +135,21 @@ func (c *Cards) Pop() (Card, bool) {
 	return card, true
 }
 
-func (c *Cards) PopAll() []Card {
-	cards := make([]Card, 0)
+func (c *Cards) PopAll() {
 	for {
-		card, ok := c.Pop()
+		_, ok := c.Pop()
 		if !ok {
 			break
 		}
-		cards = append(cards, card)
 	}
-	return cards
 }
 
 func Sum(inputs []string) int {
 	sum := 0
 	for _, input := range inputs {
 		input = strings.TrimRight(input, "\n")
-		sum += NewCard(input).Score()
+		card := NewCard(input)
+		sum += card.Score()
 	}
 	return sum
 }

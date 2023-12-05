@@ -19,3 +19,8 @@
 
 # Go workspace file
 go.work
+
+# Profiling files
+*.prof
+profile*.png
+profile*.svg
