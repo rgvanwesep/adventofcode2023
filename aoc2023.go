@@ -69,6 +69,8 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day4.SumCards(inputLines))))
 	case [2]int{5, 1}:
 		writer.WriteString((fmt.Sprintln(day5.MinLocation(inputLines))))
+	case [2]int{5, 2}:
+		writer.WriteString((fmt.Sprintln(day5.MinLocationFromRanges(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}

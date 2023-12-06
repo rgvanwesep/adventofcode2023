@@ -29,6 +29,36 @@ func NewSeeds(input string) Seeds {
 	return seeds
 }
 
+type Range struct {
+	Start  int
+	Length int
+}
+
+type SeedRanges []Range
+
+func NewSeedRanges(input string) SeedRanges {
+	input = strings.Replace(input, seedsPrefix, "", 1)
+	input = strings.Trim(input, " \n")
+	ranges := make(SeedRanges, 0)
+	split := strings.Split(input, " ")
+	for i, j := 0, 1; j < len(split); i, j = i+2, j+2 {
+		start, _ := strconv.Atoi(split[i])
+		length, _ := strconv.Atoi(split[j])
+		ranges = append(ranges, Range{start, length})
+	}
+	return ranges
+}
+
+func (s SeedRanges) Seeds() Seeds {
+	seeds := make(Seeds, 0)
+	for _, r := range s {
+		for i := 0; i < r.Length; i++ {
+			seeds = append(seeds, r.Start+i)
+		}
+	}
+	return seeds
+}
+
 type RangeMapItem struct {
 	DstStart int
 	SrcStart int
@@ -127,6 +157,47 @@ func NewAtlas(inputs []string) Atlas {
 	return atlas
 }
 
+func NewAtlasFromRanges(inputs []string) Atlas {
+	atlas := Atlas{
+		Seeds: NewSeedRanges(inputs[0]).Seeds(),
+		Maps:  make([]RangeMap, 0),
+	}
+	for i := 1; i < len(inputs); {
+		if strings.HasPrefix(inputs[i], seedToSoilHeader) {
+			rangeMap := NewRangeMap(inputs[i:])
+			atlas.Maps = append(atlas.Maps, rangeMap)
+			i += len(rangeMap.Items)
+		} else if strings.HasPrefix(inputs[i], soilToFertilizerHeader) {
+			rangeMap := NewRangeMap(inputs[i:])
+			atlas.Maps = append(atlas.Maps, rangeMap)
+			i += len(rangeMap.Items)
+		} else if strings.HasPrefix(inputs[i], fertilizerToWaterHeader) {
+			rangeMap := NewRangeMap(inputs[i:])
+			atlas.Maps = append(atlas.Maps, rangeMap)
+			i += len(rangeMap.Items)
+		} else if strings.HasPrefix(inputs[i], waterToLightHeader) {
+			rangeMap := NewRangeMap(inputs[i:])
+			atlas.Maps = append(atlas.Maps, rangeMap)
+			i += len(rangeMap.Items)
+		} else if strings.HasPrefix(inputs[i], lightToTemperatureHeader) {
+			rangeMap := NewRangeMap(inputs[i:])
+			atlas.Maps = append(atlas.Maps, rangeMap)
+			i += len(rangeMap.Items)
+		} else if strings.HasPrefix(inputs[i], temperatureToHumidityHeader) {
+			rangeMap := NewRangeMap(inputs[i:])
+			atlas.Maps = append(atlas.Maps, rangeMap)
+			i += len(rangeMap.Items)
+		} else if strings.HasPrefix(inputs[i], humidityToLocationHeader) {
+			rangeMap := NewRangeMap(inputs[i:])
+			atlas.Maps = append(atlas.Maps, rangeMap)
+			i += len(rangeMap.Items)
+		} else {
+			i++
+		}
+	}
+	return atlas
+}
+
 func (a Atlas) FindLocations() []int {
 	seeds := a.Seeds
 	inputs := make([]int, 0)
@@ -155,6 +226,18 @@ func (a Atlas) FindLocations() []int {
 
 func MinLocation(inputs []string) int {
 	atlas := NewAtlas(inputs)
+	locations := atlas.FindLocations()
+	minLocation := locations[0]
+	for _, location := range locations[1:] {
+		if location < minLocation {
+			minLocation = location
+		}
+	}
+	return minLocation
+}
+
+func MinLocationFromRanges(inputs []string) int {
+	atlas := NewAtlasFromRanges(inputs)
 	locations := atlas.FindLocations()
 	minLocation := locations[0]
 	for _, location := range locations[1:] {
