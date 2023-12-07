@@ -6,6 +6,7 @@ import (
 	"aoc2023/day3"
 	"aoc2023/day4"
 	"aoc2023/day5"
+	"aoc2023/day6"
 	"bufio"
 	"flag"
 	"fmt"
@@ -69,6 +70,10 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day4.SumCards(inputLines))))
 	case [2]int{5, 1}:
 		writer.WriteString((fmt.Sprintln(day5.MinLocation(inputLines))))
+	case [2]int{6, 1}:
+		writer.WriteString((fmt.Sprintln(day6.Product(inputLines))))
+	case [2]int{6, 2}:
+		writer.WriteString((fmt.Sprintln(day6.Count(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}
