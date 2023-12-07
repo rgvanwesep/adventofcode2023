@@ -372,3 +372,78 @@ func TestMinLocation(t *testing.T) {
 		}
 	}
 }
+
+func TestRangeSetAdd(t *testing.T) {
+	cases := []struct {
+		rs       RangeSet
+		r        Range
+		expected RangeSet
+	}{
+		{
+			RangeSet{},
+			Range{1, 2},
+			RangeSet{{1, 2}},
+		},
+		{
+			RangeSet{{1, 2}},
+			Range{3, 4},
+			RangeSet{{1, 2}, {3, 4}},
+		},
+		{
+			RangeSet{{1, 2}},
+			Range{2, 3},
+			RangeSet{{1, 3}},
+		},
+		{
+			RangeSet{{1, 2}},
+			Range{0, 1},
+			RangeSet{{0, 2}},
+		},
+		{
+			RangeSet{{1, 2}},
+			Range{0, 3},
+			RangeSet{{0, 3}},
+		},
+		{
+			RangeSet{{1, 3}},
+			Range{2, 4},
+			RangeSet{{1, 4}},
+		},
+		{
+			RangeSet{{1, 3}},
+			Range{0, 2},
+			RangeSet{{0, 3}},
+		},
+		{
+			RangeSet{},
+			Range{1, 1},
+			RangeSet{},
+		},
+		{
+			RangeSet{{1, 2}, {3, 4}},
+			Range{2, 3},
+			RangeSet{{1, 4}},
+		},
+		{
+			RangeSet{{1, 2}, {3, 4}, {5, 6}},
+			Range{2, 3},
+			RangeSet{{1, 4}, {5, 6}},
+		},
+		{
+			RangeSet{{1, 2}, {3, 4}, {5, 6}},
+			Range{2, 5},
+			RangeSet{{1, 6}},
+		},
+		{
+			RangeSet{{1, 2}, {3, 4}, {5, 6}},
+			Range{4, 5},
+			RangeSet{{1, 2}, {3, 6}},
+		},
+	}
+	for _, c := range cases {
+		actual := c.rs.Add(c.r)
+		if !reflect.DeepEqual(actual, c.expected) {
+			t.Errorf("Add(%v, %v) == %v, want %v", c.rs, c.r, actual, c.expected)
+		}
+	}
+}

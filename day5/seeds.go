@@ -18,6 +18,89 @@ const (
 
 type Seeds []int
 
+type Range struct {
+	Start int
+	End   int
+}
+
+func (r Range) Length() int {
+	return r.End - r.Start
+}
+
+type RangeSet []Range
+
+func (rs RangeSet) Add(r Range) RangeSet {
+	if len(rs) == 0 {
+		if r.Length() == 0 {
+			return rs
+		}
+		return RangeSet{r}
+	}
+	if r.Length() == 0 {
+		return rs
+	}
+	if rs[0].Start > r.End {
+		return append(RangeSet{r}, rs...)
+	}
+	if rs[len(rs)-1].End < r.Start {
+		return append(rs, r)
+	}
+	var start, end int
+	for i := 0; i < len(rs); i++ {
+		if rs[i].End >= r.Start {
+			start = i
+			break
+		}
+	}
+	for i := len(rs) - 1; i >= 0; i-- {
+		if rs[i].Start <= r.End {
+			end = i
+			break
+		}
+	}
+	result := make(RangeSet, 0)
+	result = append(result, rs[:start]...)
+	if start == end {
+		if rs[start].Start < r.Start {
+			if r.End < rs[start].End {
+				result = append(result, Range{rs[start].Start, rs[start].End})
+			} else {
+				result = append(result, Range{rs[start].Start, r.End})
+			}
+		} else {
+			if r.End < rs[start].End {
+				result = append(result, Range{r.Start, rs[start].End})
+			} else {
+				result = append(result, Range{r.Start, r.End})
+			}
+		}
+	} else {
+		if rs[start].Start < r.Start {
+			if r.End < rs[end].End {
+				result = append(result, Range{rs[start].Start, rs[end].End})
+			} else {
+				result = append(result, Range{rs[start].Start, r.End})
+			}
+		} else {
+			if r.End < rs[end].End {
+				result = append(result, Range{r.Start, rs[end].End})
+			} else {
+				result = append(result, Range{r.Start, r.End})
+			}
+		}
+	}
+	result = append(result, rs[end+1:]...)
+	return result
+}
+
+func NewRangeSet(ranges []Range) RangeSet {
+	rs := make(RangeSet, 0)
+	for _, r := range ranges {
+		rs = rs.Add(r)
+	}
+	return rs
+}
+
 func NewSeeds(input string) Seeds {
 	input = strings.Replace(input, seedsPrefix, "", 1)
 	input = strings.Trim(input, " \n")
