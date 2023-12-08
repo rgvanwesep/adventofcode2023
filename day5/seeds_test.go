@@ -542,3 +542,78 @@ func TestRangeSetIntersect(t *testing.T) {
 		}
 	}
 }
+
+func TestRangeSetSubtract(t *testing.T) {
+	cases := []struct {
+		rs1      RangeSet
+		rs2      RangeSet
+		expected RangeSet
+	}{
+		{
+			RangeSet{},
+			RangeSet{},
+			RangeSet{},
+		},
+		{
+			RangeSet{{1, 2}},
+			RangeSet{{3, 4}},
+			RangeSet{{1, 2}},
+		},
+		{
+			RangeSet{{1, 2}},
+			RangeSet{{2, 3}},
+			RangeSet{{1, 2}},
+		},
+		{
+			RangeSet{{1, 2}},
+			RangeSet{{0, 1}},
+			RangeSet{{1, 2}},
+		},
+		{
+			RangeSet{{1, 2}},
+			RangeSet{{0, 3}},
+			RangeSet{},
+		},
+		{
+			RangeSet{{1, 3}},
+			RangeSet{{2, 4}},
+			RangeSet{{1, 2}},
+		},
+		{
+			RangeSet{{1, 3}},
+			RangeSet{{0, 2}},
+			RangeSet{{2, 3}},
+		},
+		{
+			RangeSet{{1, 3}},
+			RangeSet{{0, 4}},
+			RangeSet{},
+		},
+		{
+			RangeSet{{1, 3}},
+			RangeSet{{0, 1}},
+			RangeSet{{1, 3}},
+		},
+		{
+			RangeSet{{1, 3}},
+			RangeSet{{0, 3}},
+			RangeSet{},
+		},
+		{
+			RangeSet{{1, 3}, {5, 7}},
+			RangeSet{{2, 4}, {6, 8}},
+			RangeSet{{1, 2}, {5, 6}},
+		},
+		{
+			RangeSet{{1, 3}, {5, 7}},
+			RangeSet{{0, 2}, {4, 6}},
+			RangeSet{{2, 3}, {6, 7}},
+		},
+	}
+	for _, c := range cases {
+		actual := c.rs1.Subtract(c.rs2)
+		if !reflect.DeepEqual(actual, c.expected) {
+			t.Errorf("Subtract(%v, %v) == %v, want %v", c.rs1, c.rs2, actual, c.expected)
+		}
+	}
+}

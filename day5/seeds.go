@@ -140,6 +140,50 @@ func (rs RangeSet) Intersect(other RangeSet) RangeSet {
 	return intersection
 }
 
+func (rs RangeSet) Subtract(other RangeSet) RangeSet {
+	if len(rs.Intersect(other)) == 0 {
+		return rs
+	}
+	subtraction := make(RangeSet, 0)
+	for _, r := range other {
+		start, end := rs.Bracket(r)
+		subtraction = append(subtraction, rs[:start]...)
+		if rs[start:end+1].Covered(r) {
+			continue
+		} else if rs[start:end+1].CoveredLeft(r) {
+			newR := Range{r.End, rs[end].End}
+			if newR.Length() > 0 {
+				subtraction = append(subtraction, newR)
+			}
+		} else if rs[start:end+1].CoveredRight(r) {
+			newR := Range{rs[start].Start, r.Start}
+			if newR.Length() > 0 {
+				subtraction = append(subtraction, Range{rs[start].Start, r.Start})
+			}
+		} else {
+			newR := Range{rs[start].Start, r.Start}
+			if newR.Length() > 0 {
+				subtraction = append(subtraction, Range{rs[start].Start, r.Start})
+			}
+			newR = Range{r.End, rs[end].End}
+			if newR.Length() > 0 {
+				subtraction = append(subtraction, Range{r.End, rs[end].End})
+			}
+		}
+		if len(rs) == 0 {
+			break
+		}
+		rs = rs[end+1:]
+		if len(rs) == 0 {
+			break
+		}
+	}
+	if len(rs) > 0 {
+		subtraction = append(subtraction, rs[1:]...)
+	}
+	return subtraction
+}
+
 func NewRangeSet(ranges []Range) RangeSet {
 	rs := make(RangeSet, 0)
 	for _, r := range ranges {
