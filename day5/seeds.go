@@ -109,6 +109,37 @@ func (rs RangeSet) Add(r Range) RangeSet {
 	return result
 }
 
+func (rs RangeSet) Intersect(other RangeSet) RangeSet {
+	if len(rs) == 0 || len(other) == 0 {
+		return RangeSet{}
+	}
+	if rs[0].Start > other[len(other)-1].End || rs[len(rs)-1].End < other[0].Start {
+		return RangeSet{}
+	}
+	intersection := make(RangeSet, 0)
+	for _, r := range other {
+		start, end := rs.Bracket(r)
+		if rs[start:end+1].Covered(r) {
+			intersection = append(intersection, rs[start:end+1]...)
+		} else if rs[start:end+1].CoveredLeft(r) {
+			intersection = append(intersection, rs[start:end]...)
+			intersection = append(intersection, Range{rs[end].Start, r.End})
+		} else if rs[start:end+1].CoveredRight(r) {
+			intersection = append(intersection, Range{r.Start, rs[start].End})
+			intersection = append(intersection, rs[start+1:end+1]...)
+		} else {
+			intersection = append(intersection, Range{r.Start, rs[start].End})
+			intersection = append(intersection, rs[start+1:end]...)
+			intersection = append(intersection, Range{rs[end].Start, r.End})
+		}
+		rs = rs[end:]
+		if len(rs) == 0 {
+			break
+		}
+	}
+	return intersection
+}
+
 func NewRangeSet(ranges []Range) RangeSet {
 	rs := make(RangeSet, 0)
 	for _, r := range ranges {
