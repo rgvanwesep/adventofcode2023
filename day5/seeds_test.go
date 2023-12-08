@@ -48,7 +48,7 @@ func TestNewAtlas(t *testing.T) {
 			},
 			atlas: Atlas{
 				Seeds: Seeds{79, 14, 55, 13},
-				Maps: []RangeMap{
+				Maps: []NamedRangeMap{
 					{
 						Header: "seed-to-soil map:",
 						Items: []RangeMapItem{
@@ -156,12 +156,12 @@ func TestItemApply(t *testing.T) {
 
 func TestRangeMapApply(t *testing.T) {
 	cases := []struct {
-		r        RangeMap
+		r        NamedRangeMap
 		input    int
 		expected []int
 	}{
 		{
-			RangeMap{
+			NamedRangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -172,7 +172,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{50},
 		},
 		{
-			RangeMap{
+			NamedRangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -183,7 +183,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{51},
 		},
 		{
-			RangeMap{
+			NamedRangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -194,7 +194,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{99},
 		},
 		{
-			RangeMap{
+			NamedRangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -205,7 +205,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{100},
 		},
 		{
-			RangeMap{
+			NamedRangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -216,7 +216,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{52},
 		},
 		{
-			RangeMap{
+			NamedRangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -227,7 +227,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{55},
 		},
 		{
-			RangeMap{
+			NamedRangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -254,7 +254,7 @@ func TestFindLocations(t *testing.T) {
 		{
 			Atlas{
 				Seeds: Seeds{79, 14, 55, 13},
-				Maps: []RangeMap{
+				Maps: []NamedRangeMap{
 					{
 						Header: "seed-to-soil map:",
 						Items: []RangeMapItem{

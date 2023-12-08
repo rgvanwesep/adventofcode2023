@@ -92,15 +92,15 @@ func (rs RangeSet) Add(r Range) RangeSet {
 	if rs[len(rs)-1].End < r.Start {
 		return append(rs, r)
 	}
-	
+
 	start, end := rs.Bracket(r)
 	result := make(RangeSet, 0)
 	result = append(result, rs[:start]...)
-	if rs[start:end+1].Covered(r) {
+	if rs[start : end+1].Covered(r) {
 		result = append(result, Range{r.Start, r.End})
-	} else if rs[start:end+1].CoveredLeft(r) {
+	} else if rs[start : end+1].CoveredLeft(r) {
 		result = append(result, Range{r.Start, rs[end].End})
-	} else if rs[start:end+1].CoveredRight(r) {
+	} else if rs[start : end+1].CoveredRight(r) {
 		result = append(result, Range{rs[start].Start, r.End})
 	} else {
 		result = append(result, Range{rs[start].Start, rs[end].End})
@@ -119,12 +119,12 @@ func (rs RangeSet) Intersect(other RangeSet) RangeSet {
 	intersection := make(RangeSet, 0)
 	for _, r := range other {
 		start, end := rs.Bracket(r)
-		if rs[start:end+1].Covered(r) {
+		if rs[start : end+1].Covered(r) {
 			intersection = append(intersection, rs[start:end+1]...)
-		} else if rs[start:end+1].CoveredLeft(r) {
+		} else if rs[start : end+1].CoveredLeft(r) {
 			intersection = append(intersection, rs[start:end]...)
 			intersection = append(intersection, Range{rs[end].Start, r.End})
-		} else if rs[start:end+1].CoveredRight(r) {
+		} else if rs[start : end+1].CoveredRight(r) {
 			intersection = append(intersection, Range{r.Start, rs[start].End})
 			intersection = append(intersection, rs[start+1:end+1]...)
 		} else {
@@ -148,14 +148,14 @@ func (rs RangeSet) Subtract(other RangeSet) RangeSet {
 	for _, r := range other {
 		start, end := rs.Bracket(r)
 		subtraction = append(subtraction, rs[:start]...)
-		if rs[start:end+1].Covered(r) {
+		if rs[start : end+1].Covered(r) {
 			continue
-		} else if rs[start:end+1].CoveredLeft(r) {
+		} else if rs[start : end+1].CoveredLeft(r) {
 			newR := Range{r.End, rs[end].End}
 			if newR.Length() > 0 {
 				subtraction = append(subtraction, newR)
 			}
-		} else if rs[start:end+1].CoveredRight(r) {
+		} else if rs[start : end+1].CoveredRight(r) {
 			newR := Range{rs[start].Start, r.Start}
 			if newR.Length() > 0 {
 				subtraction = append(subtraction, Range{rs[start].Start, r.Start})
@@ -225,12 +225,12 @@ func NewRangeMapItem(input string) RangeMapItem {
 	return RangeMapItem{dstStart, srcStart, length}
 }
 
-type RangeMap struct {
+type NamedRangeMap struct {
 	Header string
 	Items  []RangeMapItem
 }
 
-func NewRangeMap(inputs []string) RangeMap {
+func NewNamedRangeMap(inputs []string) NamedRangeMap {
 	header := strings.TrimRight(inputs[0], "\n")
 	items := make([]RangeMapItem, 0)
 	for _, input := range inputs[1:] {
@@ -239,10 +239,10 @@ func NewRangeMap(inputs []string) RangeMap {
 		}
 		items = append(items, NewRangeMapItem(input))
 	}
-	return RangeMap{header, items}
+	return NamedRangeMap{header, items}
 }
 
-func (r RangeMap) Apply(input int) []int {
+func (r NamedRangeMap) Apply(input int) []int {
 	outputs := make([]int, 0)
 	for _, item := range r.Items {
 		if output, ok := item.Apply(input); ok {
@@ -257,41 +257,41 @@ func (r RangeMap) Apply(input int) []int {
 
 type Atlas struct {
 	Seeds Seeds
-	Maps  []RangeMap
+	Maps  []NamedRangeMap
 }
 
 func NewAtlas(inputs []string) Atlas {
 	atlas := Atlas{
 		Seeds: NewSeeds(inputs[0]),
-		Maps:  make([]RangeMap, 0),
+		Maps:  make([]NamedRangeMap, 0),
 	}
 	for i := 1; i < len(inputs); {
 		if strings.HasPrefix(inputs[i], seedToSoilHeader) {
-			rangeMap := NewRangeMap(inputs[i:])
+			rangeMap := NewNamedRangeMap(inputs[i:])
 			atlas.Maps = append(atlas.Maps, rangeMap)
 			i += len(rangeMap.Items)
 		} else if strings.HasPrefix(inputs[i], soilToFertilizerHeader) {
-			rangeMap := NewRangeMap(inputs[i:])
+			rangeMap := NewNamedRangeMap(inputs[i:])
 			atlas.Maps = append(atlas.Maps, rangeMap)
 			i += len(rangeMap.Items)
 		} else if strings.HasPrefix(inputs[i], fertilizerToWaterHeader) {
-			rangeMap := NewRangeMap(inputs[i:])
+			rangeMap := NewNamedRangeMap(inputs[i:])
 			atlas.Maps = append(atlas.Maps, rangeMap)
 			i += len(rangeMap.Items)
 		} else if strings.HasPrefix(inputs[i], waterToLightHeader) {
-			rangeMap := NewRangeMap(inputs[i:])
+			rangeMap := NewNamedRangeMap(inputs[i:])
 			atlas.Maps = append(atlas.Maps, rangeMap)
 			i += len(rangeMap.Items)
 		} else if strings.HasPrefix(inputs[i], lightToTemperatureHeader) {
-			rangeMap := NewRangeMap(inputs[i:])
+			rangeMap := NewNamedRangeMap(inputs[i:])
 			atlas.Maps = append(atlas.Maps, rangeMap)
 			i += len(rangeMap.Items)
 		} else if strings.HasPrefix(inputs[i], temperatureToHumidityHeader) {
-			rangeMap := NewRangeMap(inputs[i:])
+			rangeMap := NewNamedRangeMap(inputs[i:])
 			atlas.Maps = append(atlas.Maps, rangeMap)
 			i += len(rangeMap.Items)
 		} else if strings.HasPrefix(inputs[i], humidityToLocationHeader) {
-			rangeMap := NewRangeMap(inputs[i:])
+			rangeMap := NewNamedRangeMap(inputs[i:])
 			atlas.Maps = append(atlas.Maps, rangeMap)
 			i += len(rangeMap.Items)
 		} else {
