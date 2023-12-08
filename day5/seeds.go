@@ -216,6 +216,24 @@ func (r RangeMapItem) Apply(input int) (int, bool) {
 	return input - r.SrcStart + r.DstStart, true
 }
 
+func (r RangeMapItem) ApplySet(input RangeSet) RangeSet {
+	shift := r.DstStart - r.SrcStart
+	srcSet := RangeSet{r.SrcRange()}
+	intersection := srcSet.Intersect(input)
+	if len(intersection) == 0 {
+		return input
+	}
+	subtraction := srcSet.Subtract(input)
+	output := make(RangeSet, 0)
+	for _, r := range intersection {
+		output = output.Add(Range{r.Start + shift, r.End + shift})
+	}
+	for _, r := range subtraction {
+		output = output.Add(r)
+	}
+	return output
+}
+
 func NewRangeMapItem(input string) RangeMapItem {
 	input = strings.TrimRight(input, "\n")
 	split := strings.Split(input, " ")
@@ -225,9 +243,49 @@ func NewRangeMapItem(input string) RangeMapItem {
 	return RangeMapItem{dstStart, srcStart, length}
 }
 
+func (r RangeMapItem) SrcRange() Range {
+	return Range{r.SrcStart, r.SrcStart + r.Length}
+}
+
+func (r RangeMapItem) DstRange() Range {
+	return Range{r.DstStart, r.DstStart + r.Length}
+}
+
+type RangeMap []RangeMapItem
+
+func (r RangeMap) SrcSet() RangeSet {
+	rs := make(RangeSet, 0)
+	for _, item := range r {
+		rs = rs.Add(item.SrcRange())
+	}
+	return rs
+}
+
+func (r RangeMap) DstSet() RangeSet {
+	rs := make(RangeSet, 0)
+	for _, item := range r {
+		rs = rs.Add(item.DstRange())
+	}
+	return rs
+}
+
+func (r RangeMap) Apply (input RangeSet) RangeSet {
+	intersection := r.SrcSet().Intersect(input)
+	output := make(RangeSet, 0)
+	for _, item := range r {
+		for _, r := range item.ApplySet(intersection) {
+			output = output.Add(r)
+		}
+	}
+	for _, r := range input.Subtract(r.SrcSet()) {
+		output = output.Add(r)
+	}
+	return output
+}
+
 type NamedRangeMap struct {
 	Header string
-	Items  []RangeMapItem
+	Items  RangeMap
 }
 
 func NewNamedRangeMap(inputs []string) NamedRangeMap {
