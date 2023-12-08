@@ -109,6 +109,23 @@ func (rs RangeSet) Add(r Range) RangeSet {
 	return result
 }
 
+func (rs RangeSet) Union(other RangeSet) RangeSet {
+	if len(rs) == 0 {
+		return other
+	}
+	if len(other) == 0 {
+		return rs
+	}
+	union := make(RangeSet, 0)
+	for _, r := range rs {
+		union = union.Add(r)
+	}
+	for _, r := range other {
+		union = union.Add(r)
+	}
+	return union
+}
+
 func (rs RangeSet) Intersect(other RangeSet) RangeSet {
 	if len(rs) == 0 || len(other) == 0 {
 		return RangeSet{}
