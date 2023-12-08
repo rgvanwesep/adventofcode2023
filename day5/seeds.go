@@ -1,6 +1,7 @@
 package day5
 
 import (
+	"log"
 	"strconv"
 	"strings"
 )
@@ -29,6 +30,52 @@ func (r Range) Length() int {
 
 type RangeSet []Range
 
+func (rs RangeSet) Bracket(r Range) (start, end int) {
+	for i := 0; i < len(rs); i++ {
+		if rs[i].End >= r.Start {
+			start = i
+			break
+		}
+	}
+	for i := len(rs) - 1; i >= 0; i-- {
+		if rs[i].Start <= r.End {
+			end = i
+			break
+		}
+	}
+	return
+}
+
+func (rs RangeSet) CoveredLeft(r Range) bool {
+	if r.Length() == 0 {
+		return false
+	}
+	if len(rs) == 0 {
+		log.Fatal("RangeSet is empty")
+	}
+	return r.Start <= rs[0].Start
+}
+
+func (rs RangeSet) CoveredRight(r Range) bool {
+	if r.Length() == 0 {
+		return false
+	}
+	if len(rs) == 0 {
+		log.Fatal("RangeSet is empty")
+	}
+	return r.End >= rs[len(rs)-1].End
+}
+
+func (rs RangeSet) Covered(r Range) bool {
+	if r.Length() == 0 {
+		return false
+	}
+	if len(rs) == 0 {
+		log.Fatal("RangeSet is empty")
+	}
+	return rs.CoveredLeft(r) && rs.CoveredRight(r)
+}
+
 func (rs RangeSet) Add(r Range) RangeSet {
 	if len(rs) == 0 {
 		if r.Length() == 0 {
@@ -45,49 +92,18 @@ func (rs RangeSet) Add(r Range) RangeSet {
 	if rs[len(rs)-1].End < r.Start {
 		return append(rs, r)
 	}
-	var start, end int
-	for i := 0; i < len(rs); i++ {
-		if rs[i].End >= r.Start {
-			start = i
-			break
-		}
-	}
-	for i := len(rs) - 1; i >= 0; i-- {
-		if rs[i].Start <= r.End {
-			end = i
-			break
-		}
-	}
+	
+	start, end := rs.Bracket(r)
 	result := make(RangeSet, 0)
 	result = append(result, rs[:start]...)
-	if start == end {
-		if rs[start].Start < r.Start {
-			if r.End < rs[start].End {
-				result = append(result, Range{rs[start].Start, rs[start].End})
-			} else {
-				result = append(result, Range{rs[start].Start, r.End})
-			}
-		} else {
-			if r.End < rs[start].End {
-				result = append(result, Range{r.Start, rs[start].End})
-			} else {
-				result = append(result, Range{r.Start, r.End})
-			}
-		}
+	if rs[start:end+1].Covered(r) {
+		result = append(result, Range{r.Start, r.End})
+	} else if rs[start:end+1].CoveredLeft(r) {
+		result = append(result, Range{r.Start, rs[end].End})
+	} else if rs[start:end+1].CoveredRight(r) {
+		result = append(result, Range{rs[start].Start, r.End})
 	} else {
-		if rs[start].Start < r.Start {
-			if r.End < rs[end].End {
-				result = append(result, Range{rs[start].Start, rs[end].End})
-			} else {
-				result = append(result, Range{rs[start].Start, r.End})
-			}
-		} else {
-			if r.End < rs[end].End {
-				result = append(result, Range{r.Start, rs[end].End})
-			} else {
-				result = append(result, Range{r.Start, r.End})
-			}
-		}
+		result = append(result, Range{rs[start].Start, rs[end].End})
 	}
 	result = append(result, rs[end+1:]...)
 	return result
