@@ -269,7 +269,7 @@ func (r RangeMap) DstSet() RangeSet {
 	return rs
 }
 
-func (r RangeMap) Apply (input RangeSet) RangeSet {
+func (r RangeMap) Apply(input RangeSet) RangeSet {
 	intersection := r.SrcSet().Intersect(input)
 	output := make(RangeSet, 0)
 	for _, item := range r {
