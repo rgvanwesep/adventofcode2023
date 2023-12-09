@@ -8,6 +8,7 @@ import (
 	"aoc2023/day5"
 	"aoc2023/day6"
 	"aoc2023/day7"
+	"aoc2023/day8"
 	"bufio"
 	"flag"
 	"fmt"
@@ -79,6 +80,8 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day7.Winnings(inputLines))))
 	case [2]int{7, 2}:
 		writer.WriteString((fmt.Sprintln(day7.JokerWinnings(inputLines))))
+	case [2]int{8, 1}:
+		writer.WriteString((fmt.Sprintln(day8.CountSteps(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}
