@@ -82,6 +82,8 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day7.JokerWinnings(inputLines))))
 	case [2]int{8, 1}:
 		writer.WriteString((fmt.Sprintln(day8.CountSteps(inputLines))))
+	case [2]int{8, 2}:
+		writer.WriteString((fmt.Sprintln(day8.CountParallelSteps(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}

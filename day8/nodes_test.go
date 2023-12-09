@@ -65,15 +65,17 @@ func TestNewGraph(t *testing.T) {
 				"VMG = (DNX, BDL)",
 			},
 			Graph{
-				"FJT": Node{
-					Id:    "FJT",
-					Left:  "XDJ",
-					Right: "LQV",
-				},
-				"VMG": Node{
-					Id:    "VMG",
-					Left:  "DNX",
-					Right: "BDL",
+				Nodes: map[string]Node{
+					"FJT": {
+						Id:    "FJT",
+						Left:  "XDJ",
+						Right: "LQV",
+					},
+					"VMG": {
+						Id:    "VMG",
+						Left:  "DNX",
+						Right: "BDL",
+					},
 				},
 			},
 		},
@@ -89,40 +91,42 @@ func TestNewGraph(t *testing.T) {
 				"ZZZ = (ZZZ, ZZZ)",
 			},
 			Graph{
-				"AAA": Node{
-					Id:    "AAA",
-					Left:  "BBB",
-					Right: "CCC",
-				},
-				"BBB": Node{
-					Id:    "BBB",
-					Left:  "DDD",
-					Right: "EEE",
-				},
-				"CCC": Node{
-					Id:    "CCC",
-					Left:  "ZZZ",
-					Right: "GGG",
-				},
-				"DDD": Node{
-					Id:    "DDD",
-					Left:  "DDD",
-					Right: "DDD",
-				},
-				"EEE": Node{
-					Id:    "EEE",
-					Left:  "EEE",
-					Right: "EEE",
-				},
-				"GGG": Node{
-					Id:    "GGG",
-					Left:  "GGG",
-					Right: "GGG",
-				},
-				"ZZZ": Node{
-					Id:    "ZZZ",
-					Left:  "ZZZ",
-					Right: "ZZZ",
+				Nodes: map[string]Node{
+					"AAA": {
+						Id:    "AAA",
+						Left:  "BBB",
+						Right: "CCC",
+					},
+					"BBB": {
+						Id:    "BBB",
+						Left:  "DDD",
+						Right: "EEE",
+					},
+					"CCC": {
+						Id:    "CCC",
+						Left:  "ZZZ",
+						Right: "GGG",
+					},
+					"DDD": {
+						Id:    "DDD",
+						Left:  "DDD",
+						Right: "DDD",
+					},
+					"EEE": {
+						Id:    "EEE",
+						Left:  "EEE",
+						Right: "EEE",
+					},
+					"GGG": {
+						Id:    "GGG",
+						Left:  "GGG",
+						Right: "GGG",
+					},
+					"ZZZ": {
+						Id:    "ZZZ",
+						Left:  "ZZZ",
+						Right: "ZZZ",
+					},
 				},
 			},
 		},
@@ -133,20 +137,22 @@ func TestNewGraph(t *testing.T) {
 				"ZZZ = (ZZZ, ZZZ)",
 			},
 			Graph{
-				"AAA": Node{
-					Id:    "AAA",
-					Left:  "BBB",
-					Right: "BBB",
-				},
-				"BBB": Node{
-					Id:    "BBB",
-					Left:  "AAA",
-					Right: "ZZZ",
-				},
-				"ZZZ": Node{
-					Id:    "ZZZ",
-					Left:  "ZZZ",
-					Right: "ZZZ",
+				Nodes: map[string]Node{
+					"AAA": {
+						Id:    "AAA",
+						Left:  "BBB",
+						Right: "BBB",
+					},
+					"BBB": {
+						Id:    "BBB",
+						Left:  "AAA",
+						Right: "ZZZ",
+					},
+					"ZZZ": {
+						Id:    "ZZZ",
+						Left:  "ZZZ",
+						Right: "ZZZ",
+					},
 				},
 			},
 		},
@@ -191,6 +197,35 @@ func TestCountSteps(t *testing.T) {
 	}
 	for _, c := range cases {
 		got := CountSteps(c.lines)
+		if got != c.want {
+			t.Errorf("CountSteps(%q) == %v, want %v", c.lines, got, c.want)
+		}
+	}
+}
+
+func TestCountParallelSteps(t *testing.T) {
+	cases := []struct {
+		lines []string
+		want  int
+	}{
+		{
+			[]string{
+				"LR\n",
+				"\n",
+				"11A = (11B, XXX)\n",
+				"11B = (XXX, 11Z)\n",
+				"11Z = (11B, XXX)\n",
+				"22A = (22B, XXX)\n",
+				"22B = (22C, 22C)\n",
+				"22C = (22Z, 22Z)\n",
+				"22Z = (22B, 22B)\n",
+				"XXX = (XXX, XXX)",
+			},
+			6,
+		},
+	}
+	for _, c := range cases {
+		got := CountParallelSteps(c.lines)
 		if got != c.want {
 			t.Errorf("CountSteps(%q) == %v, want %v", c.lines, got, c.want)
 		}
