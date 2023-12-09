@@ -129,7 +129,7 @@ type Ghost struct {
 func NewGhost(directions *Directions, graph *Graph, start string) Ghost {
 	return Ghost{
 		Path:           []Node{graph.Nodes[start]},
-		PathMap:        map[NodeIndexPair]int{NodeIndexPair{graph.Nodes[start], 0}: 0},
+		PathMap:        map[NodeIndexPair]int{{graph.Nodes[start], 0}: 0},
 		Graph:          graph,
 		Directions:     directions,
 		Start:          start,
@@ -177,6 +177,17 @@ func (g *Ghost) GenerateEndStep() {
 	endStep := g.EndIndices[len(g.EndIndices)-1] + g.Cycle.Length
 	g.EndIndices = append(g.EndIndices, endStep)
 	g.EndIndexSet[endStep] = true
+}
+
+func GCDEuclid(a, b int) int {
+	if a == 0 {
+		return b
+	}
+	return GCDEuclid(b%a, a)
+}
+
+func LCM(a, b int) int {
+	return a * b / GCDEuclid(a, b)
 }
 
 func CountSteps(lines []string) int {
@@ -248,39 +259,41 @@ func CountParallelSteps(lines []string) int {
 			}
 		}
 		if allCycling {
-			fmt.Printf("All ghosts are cycling after %d steps\n", steps)
-			for n := 0; n < 10; n++ {
-				commonEndIndices := ghosts[0].EndIndexSet
-				for i := 1; i < numGhosts; i++ {
-					commonEndIndices = commonEndIndices.Intersection(ghosts[i].EndIndexSet)
-				}
-				if len(commonEndIndices) == 0 {
-					for i := 0; i < numGhosts; i++ {
-						ghosts[i].GenerateEndStep()
-					}
-				} else {
-					endStep := maxInt
-					for endIndex := range commonEndIndices {
-						if endIndex < endStep {
-							endStep = endIndex
-						}
-					}
-					return endStep
-				}
-			}
-			for i := 0; i < numGhosts; i++ {
-				ghost := ghosts[i]
-				fmt.Printf("%#v, EndIndices: %v\n", ghost.Cycle, ghost.EndIndices)
-			}
-			return -1
 
 			/*
+				fmt.Printf("All ghosts are cycling after %d steps\n", steps)
+				for n := 0; n < 10; n++ {
+					commonEndIndices := ghosts[0].EndIndexSet
+					for i := 1; i < numGhosts; i++ {
+						commonEndIndices = commonEndIndices.Intersection(ghosts[i].EndIndexSet)
+					}
+					if len(commonEndIndices) == 0 {
+						for i := 0; i < numGhosts; i++ {
+							ghosts[i].GenerateEndStep()
+						}
+					} else {
+						endStep := maxInt
+						for endIndex := range commonEndIndices {
+							if endIndex < endStep {
+								endStep = endIndex
+							}
+						}
+						return endStep
+					}
+				}
 				for i := 0; i < numGhosts; i++ {
 					ghost := ghosts[i]
-					fmt.Printf("%#v, EndIndex: %v\n", ghost.Cycle, ghost.EndIndices)
+					fmt.Printf("%#v, EndIndices: %v\n", ghost.Cycle, ghost.EndIndices)
 				}
-				return steps
+				return -1
 			*/
+			lcm := 1
+			for i := 0; i < numGhosts; i++ {
+				ghost := ghosts[i]
+				lcm = LCM(lcm, ghost.Cycle.Length)
+				fmt.Printf("%#v, EndIndex: %v\n", ghost.Cycle, ghost.EndIndices)
+			}
+			return lcm
 		}
 		index = (index + 1) % lenDirections
 	}
