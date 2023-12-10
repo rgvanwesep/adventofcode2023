@@ -27,6 +27,16 @@ func TestFindFarthest(t *testing.T) {
 			},
 			8,
 		},
+		{
+			[]string{
+				"F-...\n",
+				"|S-7.\n",
+				".|.|.\n",
+				".L-J.\n",
+				".....",
+			},
+			4,
+		},
 	}
 	for _, c := range cases {
 		d := FindFarthest(c.lines)

@@ -87,16 +87,16 @@ func (g *Graph) Connect() {
 		case southEast:
 			node.Neighbors = []*Node{south, east}
 		case start:
-			if northOK {
+			if northOK && (north.Value == vertical || north.Value == southEast || north.Value == southWest) {
 				node.Neighbors = append(node.Neighbors, north)
 			}
-			if southOK {
+			if southOK && (south.Value == vertical || south.Value == northEast || south.Value == northWest) {
 				node.Neighbors = append(node.Neighbors, south)
 			}
-			if eastOK {
+			if eastOK && (east.Value == horizontal || east.Value == northWest || east.Value == southWest) {
 				node.Neighbors = append(node.Neighbors, east)
 			}
-			if westOK {
+			if westOK && (west.Value == horizontal || west.Value == northEast || west.Value == southEast) {
 				node.Neighbors = append(node.Neighbors, west)
 			}
 		}
