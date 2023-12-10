@@ -127,7 +127,7 @@ func (rs RangeSet) Union(other RangeSet) RangeSet {
 }
 
 func (rs RangeSet) Slice(start, end int) RangeSet {
-	return rs[start : end]
+	return rs[start:end]
 }
 
 func (rs RangeSet) Intersect(other RangeSet) RangeSet {
