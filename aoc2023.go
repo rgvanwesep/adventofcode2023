@@ -2,6 +2,7 @@ package main
 
 import (
 	"aoc2023/day1"
+	"aoc2023/day10"
 	"aoc2023/day2"
 	"aoc2023/day3"
 	"aoc2023/day4"
@@ -92,6 +93,8 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day9.Sum(inputLines))))
 	case [2]int{9, 2}:
 		writer.WriteString((fmt.Sprintln(day9.SumPrev(inputLines))))
+	case [2]int{10, 1}:
+		writer.WriteString((fmt.Sprintln(day10.FindFarthest(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}
