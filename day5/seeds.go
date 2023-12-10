@@ -96,7 +96,9 @@ func (rs RangeSet) Add(r Range) RangeSet {
 	start, end := rs.Bracket(r)
 	result := make(RangeSet, 0)
 	result = append(result, rs[:start]...)
-	if rs[start : end+1].Covered(r) {
+	if start > end {
+		result = append(result, r)
+	} else if rs[start : end+1].Covered(r) {
 		result = append(result, Range{r.Start, r.End})
 	} else if rs[start : end+1].CoveredLeft(r) {
 		result = append(result, Range{r.Start, rs[end].End})
@@ -127,7 +129,7 @@ func (rs RangeSet) Union(other RangeSet) RangeSet {
 }
 
 func (rs RangeSet) Slice(start, end int) RangeSet {
-	return rs[start : end]
+	return rs[start:end]
 }
 
 func (rs RangeSet) Intersect(other RangeSet) RangeSet {
@@ -140,7 +142,9 @@ func (rs RangeSet) Intersect(other RangeSet) RangeSet {
 	intersection := make(RangeSet, 0)
 	for _, r := range other {
 		start, end := rs.Bracket(r)
-		if rs[start : end+1].Covered(r) {
+		if start > end {
+			continue
+		} else if rs[start : end+1].Covered(r) {
 			intersection = append(intersection, rs[start:end+1]...)
 		} else if rs[start : end+1].CoveredLeft(r) {
 			intersection = append(intersection, rs[start:end]...)
@@ -150,7 +154,9 @@ func (rs RangeSet) Intersect(other RangeSet) RangeSet {
 			intersection = append(intersection, rs[start+1:end+1]...)
 		} else {
 			intersection = append(intersection, Range{r.Start, rs[start].End})
-			intersection = append(intersection, rs[start+1:end]...)
+			if start+1 < end {
+				intersection = append(intersection, rs[start+1:end]...)
+			}
 			intersection = append(intersection, Range{rs[end].Start, r.End})
 		}
 		rs = rs[end:]
@@ -335,13 +341,18 @@ func (r NamedRangeMap) Apply(input int) []int {
 }
 
 type Atlas struct {
-	Seeds Seeds
+	Seeds RangeSet
 	Maps  []NamedRangeMap
 }
 
 func NewAtlas(inputs []string) Atlas {
+	seeds := NewSeeds(inputs[0])
+	rangeSet := make(RangeSet, 0)
+	for _, seed := range seeds {
+		rangeSet = rangeSet.Add(Range{seed, seed + 1})
+	}
 	atlas := Atlas{
-		Seeds: NewSeeds(inputs[0]),
+		Seeds: rangeSet,
 		Maps:  make([]NamedRangeMap, 0),
 	}
 	for i := 1; i < len(inputs); {
@@ -381,27 +392,15 @@ func NewAtlas(inputs []string) Atlas {
 }
 
 func (a Atlas) FindLocations() []int {
-	seeds := a.Seeds
-	inputs := make([]int, 0)
-	outputs := make([]int, 0)
 	locations := make([]int, 0)
-	for _, seed := range seeds {
-		inputs = append(inputs, seed)
-		for _, rangeMap := range a.Maps {
-			for _, input := range inputs {
-				outputs = append(outputs, rangeMap.Apply(input)...)
-			}
-			inputs = outputs
-			outputs = make([]int, 0)
-		}
-		minLocation := inputs[0]
-		for _, input := range inputs[1:] {
-			if input < minLocation {
-				minLocation = input
-			}
-		}
+	inputs := a.Seeds
+	for _, rangeMap := range a.Maps {
+		outputs := rangeMap.Items.Apply(inputs)
+		inputs = outputs
+	}
+	for _, input := range inputs {
+		minLocation := input.Start
 		locations = append(locations, minLocation)
-		inputs = make([]int, 0)
 	}
 	return locations
 }

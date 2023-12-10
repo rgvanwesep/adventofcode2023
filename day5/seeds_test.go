@@ -47,7 +47,7 @@ func TestNewAtlas(t *testing.T) {
 				"56 93 4",
 			},
 			atlas: Atlas{
-				Seeds: Seeds{79, 14, 55, 13},
+				Seeds: RangeSet{{13, 15}, {55, 56}, {79, 80}},
 				Maps: []NamedRangeMap{
 					{
 						Header: "seed-to-soil map:",
@@ -253,7 +253,7 @@ func TestFindLocations(t *testing.T) {
 	}{
 		{
 			Atlas{
-				Seeds: Seeds{79, 14, 55, 13},
+				Seeds: RangeSet{{79, 80}, {14, 15}, {55, 56}, {13, 14}},
 				Maps: []NamedRangeMap{
 					{
 						Header: "seed-to-soil map:",
