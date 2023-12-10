@@ -48,7 +48,7 @@ func TestNewAtlas(t *testing.T) {
 			},
 			atlas: Atlas{
 				Seeds: Seeds{79, 14, 55, 13},
-				Maps: []NamedRangeMap{
+				Maps: []RangeMap{
 					{
 						Header: "seed-to-soil map:",
 						Items: []RangeMapItem{
@@ -156,12 +156,12 @@ func TestItemApply(t *testing.T) {
 
 func TestRangeMapApply(t *testing.T) {
 	cases := []struct {
-		r        NamedRangeMap
+		r        RangeMap
 		input    int
 		expected []int
 	}{
 		{
-			NamedRangeMap{
+			RangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -172,7 +172,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{50},
 		},
 		{
-			NamedRangeMap{
+			RangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -183,7 +183,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{51},
 		},
 		{
-			NamedRangeMap{
+			RangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -194,7 +194,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{99},
 		},
 		{
-			NamedRangeMap{
+			RangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -205,7 +205,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{100},
 		},
 		{
-			NamedRangeMap{
+			RangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -216,7 +216,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{52},
 		},
 		{
-			NamedRangeMap{
+			RangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -227,7 +227,7 @@ func TestRangeMapApply(t *testing.T) {
 			[]int{55},
 		},
 		{
-			NamedRangeMap{
+			RangeMap{
 				Header: "seed-to-soil map:",
 				Items: []RangeMapItem{
 					{50, 98, 2},
@@ -254,7 +254,7 @@ func TestFindLocations(t *testing.T) {
 		{
 			Atlas{
 				Seeds: Seeds{79, 14, 55, 13},
-				Maps: []NamedRangeMap{
+				Maps: []RangeMap{
 					{
 						Header: "seed-to-soil map:",
 						Items: []RangeMapItem{
@@ -369,251 +369,6 @@ func TestMinLocation(t *testing.T) {
 		actual := MinLocation(c.inputs)
 		if actual != c.expected {
 			t.Errorf("MinLocation(%v) == %v, want %v", c.inputs, actual, c.expected)
-		}
-	}
-}
-
-func TestRangeSetAdd(t *testing.T) {
-	cases := []struct {
-		rs       RangeSet
-		r        Range
-		expected RangeSet
-	}{
-		{
-			RangeSet{},
-			Range{1, 2},
-			RangeSet{{1, 2}},
-		},
-		{
-			RangeSet{{1, 2}},
-			Range{3, 4},
-			RangeSet{{1, 2}, {3, 4}},
-		},
-		{
-			RangeSet{{1, 2}},
-			Range{2, 3},
-			RangeSet{{1, 3}},
-		},
-		{
-			RangeSet{{1, 2}},
-			Range{0, 1},
-			RangeSet{{0, 2}},
-		},
-		{
-			RangeSet{{1, 2}},
-			Range{0, 3},
-			RangeSet{{0, 3}},
-		},
-		{
-			RangeSet{{1, 3}},
-			Range{2, 4},
-			RangeSet{{1, 4}},
-		},
-		{
-			RangeSet{{1, 3}},
-			Range{0, 2},
-			RangeSet{{0, 3}},
-		},
-		{
-			RangeSet{},
-			Range{1, 1},
-			RangeSet{},
-		},
-		{
-			RangeSet{{1, 2}, {3, 4}},
-			Range{2, 3},
-			RangeSet{{1, 4}},
-		},
-		{
-			RangeSet{{1, 2}, {3, 4}, {5, 6}},
-			Range{2, 3},
-			RangeSet{{1, 4}, {5, 6}},
-		},
-		{
-			RangeSet{{1, 2}, {3, 4}, {5, 6}},
-			Range{2, 5},
-			RangeSet{{1, 6}},
-		},
-		{
-			RangeSet{{1, 2}, {3, 4}, {5, 6}},
-			Range{4, 5},
-			RangeSet{{1, 2}, {3, 6}},
-		},
-	}
-	for _, c := range cases {
-		actual := c.rs.Add(c.r)
-		if !reflect.DeepEqual(actual, c.expected) {
-			t.Errorf("Add(%v, %v) == %v, want %v", c.rs, c.r, actual, c.expected)
-		}
-	}
-}
-
-func TestRangeSetIntersect(t *testing.T) {
-	cases := []struct {
-		rs1      RangeSet
-		rs2      RangeSet
-		expected RangeSet
-	}{
-		{
-			RangeSet{},
-			RangeSet{},
-			RangeSet{},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{3, 4}},
-			RangeSet{},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{2, 3}},
-			RangeSet{{2, 2}},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{0, 1}},
-			RangeSet{{1, 1}},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{0, 3}},
-			RangeSet{{1, 2}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{2, 4}},
-			RangeSet{{2, 3}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 2}},
-			RangeSet{{1, 2}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 4}},
-			RangeSet{{1, 3}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 1}},
-			RangeSet{{1, 1}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 3}},
-			RangeSet{{1, 3}},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{2, 4}, {6, 8}},
-			RangeSet{{2, 3}, {6, 7}},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{0, 2}, {4, 6}},
-			RangeSet{{1, 2}, {5, 6}},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{0, 4}, {6, 8}},
-			RangeSet{{1, 3}, {6, 7}},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{0, 1}, {3, 4}},
-			RangeSet{{1, 1}, {3, 3}},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{0, 3}, {6, 8}},
-			RangeSet{{1, 3}, {6, 7}},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{0, 1}, {3, 4}, {6, 8}},
-			RangeSet{{1, 1}, {3, 3}, {6, 7}},
-		},
-	}
-	for _, c := range cases {
-		actual := c.rs1.Intersect(c.rs2)
-		if !reflect.DeepEqual(actual, c.expected) {
-			t.Errorf("Intersect(%v, %v) == %v, want %v", c.rs1, c.rs2, actual, c.expected)
-		}
-	}
-}
-
-func TestRangeSetSubtract(t *testing.T) {
-	cases := []struct {
-		rs1      RangeSet
-		rs2      RangeSet
-		expected RangeSet
-	}{
-		{
-			RangeSet{},
-			RangeSet{},
-			RangeSet{},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{3, 4}},
-			RangeSet{{1, 2}},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{2, 3}},
-			RangeSet{{1, 2}},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{0, 1}},
-			RangeSet{{1, 2}},
-		},
-		{
-			RangeSet{{1, 2}},
-			RangeSet{{0, 3}},
-			RangeSet{},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{2, 4}},
-			RangeSet{{1, 2}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 2}},
-			RangeSet{{2, 3}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 4}},
-			RangeSet{},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 1}},
-			RangeSet{{1, 3}},
-		},
-		{
-			RangeSet{{1, 3}},
-			RangeSet{{0, 3}},
-			RangeSet{},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{2, 4}, {6, 8}},
-			RangeSet{{1, 2}, {5, 6}},
-		},
-		{
-			RangeSet{{1, 3}, {5, 7}},
-			RangeSet{{0, 2}, {4, 6}},
-			RangeSet{{2, 3}, {6, 7}},
-		},
-	}
-	for _, c := range cases {
-		actual := c.rs1.Subtract(c.rs2)
-		if !reflect.DeepEqual(actual, c.expected) {
-			t.Errorf("Subtract(%v, %v) == %v, want %v", c.rs1, c.rs2, actual, c.expected)
 		}
 	}
 }
