@@ -87,6 +87,8 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day8.CountParallelSteps(inputLines))))
 	case [2]int{9, 1}:
 		writer.WriteString((fmt.Sprintln(day9.Sum(inputLines))))
+	case [2]int{9, 2}:
+		writer.WriteString((fmt.Sprintln(day9.SumPrev(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}

@@ -58,6 +58,20 @@ func (d Differences) NextValues() ([]int, error) {
 	return nextValues, nil
 }
 
+func (d Differences) PrevValues() ([]int, error) {
+	if !d[len(d)-1].Diff().IsZero() {
+		return nil, errors.New("last difference is not zero")
+	}
+	prevValues := make([]int, len(d))
+	last := 0
+	for i := len(d) - 1; i >= 0; i-- {
+		diff := d[i]
+		prevValues[i] = diff[0] - last
+		last = prevValues[i]
+	}
+	return prevValues, nil
+}
+
 type Histories []Differences
 
 func NewHistories(lines []string) Histories {
@@ -96,8 +110,26 @@ func (h Histories) SumNextValues() int {
 	return sum
 }
 
+func (h Histories) SumPrevValues() int {
+	sum := 0
+	for _, ds := range h {
+		prevValues, err := ds.PrevValues()
+		if err != nil {
+			log.Fatal(err)
+		}
+		sum += prevValues[0]
+	}
+	return sum
+}
+
 func Sum(lines []string) int {
 	histories := NewHistories(lines)
 	diffed := histories.Diff()
 	return diffed.SumNextValues()
+}
+
+func SumPrev(lines []string) int {
+	histories := NewHistories(lines)
+	diffed := histories.Diff()
+	return diffed.SumPrevValues()
 }
