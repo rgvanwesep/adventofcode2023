@@ -95,6 +95,8 @@ func main() {
 		writer.WriteString((fmt.Sprintln(day9.SumPrev(inputLines))))
 	case [2]int{10, 1}:
 		writer.WriteString((fmt.Sprintln(day10.FindFarthest(inputLines))))
+	case [2]int{10, 2}:
+		writer.WriteString((fmt.Sprintln(day10.CountInside(inputLines))))
 	default:
 		log.Fatal("Invalid day or part")
 	}

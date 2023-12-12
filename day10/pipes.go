@@ -26,7 +26,7 @@ type Node struct {
 	Value      byte
 	Coordinate Coordinate
 	Neighbors  []*Node
-	Class 	int
+	Class      int
 }
 
 func (n *Node) Next(in *Node) (*Node, bool) {
@@ -47,8 +47,8 @@ func (n *Node) Shoulders(in Coordinate) [2]Coordinate {
 			shoulders[0] = Coordinate{n.Coordinate.X - 1, n.Coordinate.Y}
 			shoulders[1] = Coordinate{n.Coordinate.X + 1, n.Coordinate.Y}
 		} else {
-			shoulders[0] = Coordinate{n.Coordinate.X - 1, n.Coordinate.Y}
-			shoulders[1] = Coordinate{n.Coordinate.X + 1, n.Coordinate.Y}
+			shoulders[0] = Coordinate{n.Coordinate.X + 1, n.Coordinate.Y}
+			shoulders[1] = Coordinate{n.Coordinate.X - 1, n.Coordinate.Y}
 		}
 	case horizontal:
 		if in.X < n.Coordinate.X {
@@ -104,20 +104,29 @@ type Graph struct {
 	Start       Coordinate
 	Distances   map[Coordinate]int
 	MainLoop    map[Coordinate]*Node
-	Outsides	map[Coordinate]bool
+	Outsides    map[Coordinate]bool
+	Boundaries  map[Coordinate]bool
 	Shoulders   map[Coordinate][2]Coordinate
 	MaxDistance int
 }
 
 func NewGraph(lines []string) *Graph {
 	g := &Graph{
-		Nodes: make(map[Coordinate]*Node),
+		Nodes:      make(map[Coordinate]*Node),
+		Distances:  make(map[Coordinate]int),
+		MainLoop:   make(map[Coordinate]*Node),
+		Outsides:   make(map[Coordinate]bool),
+		Boundaries: make(map[Coordinate]bool),
+		Shoulders:  make(map[Coordinate][2]Coordinate),
 	}
 	for y, line := range lines {
 		line = strings.TrimRight(line, "\n")
 		for x, char := range line {
 			coord := Coordinate{x, y}
 			g.Outsides[coord] = true
+			if x == 0 || y == 0 || x == len(line)-1 || y == len(lines)-1 {
+				g.Boundaries[coord] = true
+			}
 			g.Nodes[coord] = &Node{
 				Value:      byte(char),
 				Coordinate: coord,
@@ -251,9 +260,113 @@ func (g *Graph) ConnectOutsides() {
 	}
 }
 
+func (g *Graph) Traverse(
+	start *Node,
+	action func(node *Node),
+	visited *map[Coordinate]bool,
+) {
+	nodes := []*Node{start}
+	for len(nodes) > 0 {
+		node := nodes[0]
+		if node == nil {
+			log.Fatalf("nil node")
+		}
+		nodes = nodes[1:]
+		if (*visited)[node.Coordinate] {
+			continue
+		}
+		action(node)
+		(*visited)[node.Coordinate] = true
+		nodes = append(nodes, node.Neighbors...)
+	}
+}
+
+func (g *Graph) ClassifyOutsides() {
+	var ok bool
+	updateLeft := func(node *Node) {
+		node.Class = leftShoulder
+	}
+	updateRight := func(node *Node) {
+		node.Class = rightShoulder
+	}
+	visited := make(map[Coordinate]bool)
+	start := g.Nodes[g.Start]
+	prev := start
+	node := start.Neighbors[0]
+	var next *Node
+	for node != start {
+		leftShoulder, ok := g.Nodes[node.Shoulders(prev.Coordinate)[0]]
+		if ok && g.Outsides[leftShoulder.Coordinate] {
+			g.Traverse(leftShoulder, updateLeft, &visited)
+		}
+		rightShoulder, ok := g.Nodes[node.Shoulders(prev.Coordinate)[1]]
+		if ok && g.Outsides[rightShoulder.Coordinate] {
+			g.Traverse(rightShoulder, updateRight, &visited)
+		}
+		next, ok = node.Next(prev)
+		if !ok {
+			log.Fatalf("Node %v has no next", node)
+		}
+		prev, node = node, next
+	}
+	leftShoulder, ok := g.Nodes[start.Shoulders(prev.Coordinate)[0]]
+	if ok && g.Outsides[leftShoulder.Coordinate] {
+		g.Traverse(leftShoulder, updateLeft, &visited)
+	}
+	rightShoulder, ok := g.Nodes[start.Shoulders(prev.Coordinate)[1]]
+	if ok && g.Outsides[rightShoulder.Coordinate] {
+		g.Traverse(rightShoulder, updateRight, &visited)
+	}
+}
+
+func (g *Graph) CountClasses() (counts struct{ mainLoop, leftShoulder, rightShoulder int }) {
+	for _, node := range g.Nodes {
+		switch node.Class {
+		case mainLoop:
+			counts.mainLoop++
+		case leftShoulder:
+			counts.leftShoulder++
+		case rightShoulder:
+			counts.rightShoulder++
+		}
+	}
+	return counts
+}
+
 func FindFarthest(lines []string) int {
 	g := NewGraph(lines)
 	g.ConnectPipes()
 	g.MapMainLoop()
 	return g.MaxDistance
+}
+
+func CountInside(lines []string) int {
+	g := NewGraph(lines)
+	g.ConnectPipes()
+	g.MapMainLoop()
+	g.ConnectOutsides()
+	g.ClassifyOutsides()
+	outsideClass := mainLoop
+	for coord := range g.Boundaries {
+		_, ok := g.MainLoop[coord]
+		if ok {
+			continue
+		}
+		node := g.Nodes[coord]
+		switch node.Class {
+		case leftShoulder:
+			outsideClass = leftShoulder
+		case rightShoulder:
+			outsideClass = rightShoulder
+		}
+		break
+	}
+	counts := g.CountClasses()
+	switch outsideClass {
+	case leftShoulder:
+		return counts.rightShoulder
+	case rightShoulder:
+		return counts.leftShoulder
+	}
+	return len(g.Nodes) - counts.mainLoop
 }
